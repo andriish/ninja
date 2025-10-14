@@ -21,7 +21,7 @@ jobs:
 
       - name: Install gfortran
         run: |
-           dnf install -y gcc-gfortran gcc-c++ autogen autoconf automake	libtool
+           dnf install -y gcc-gfortran gcc-c++ autogen autoconf automake	libtool cmake bear
            dnf install -y libquadmath-devel || echo "OK" 
             
       - name: Compile and run

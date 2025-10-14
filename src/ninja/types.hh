@@ -68,6 +68,10 @@ namespace ninja {
   const Complex I(Real(0.),Real(1.));
 #endif
 
+#if defined(__aarch64__)
+  // Imaginary unit
+  const Complex I(Real(0.),Real(1.));
+#endif
 
 #if !defined(NINJA_QUADRUPLE) && !defined(QUADNINJA_TYPES_HH_INSIDE)
   // Put real in ninja-namespace
