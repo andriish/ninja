@@ -1,7 +1,29 @@
 m4_define([_AX_CXX_COMPILE_LIBQUADMATH_testbody], [[
     extern "C" {
+	#if defined(__x86_64__) || defined(__i386__)
     #include <quadmath.h>
+    #endif
     }
+    #ifdef __aarch64__
+    #define csqrtq csqrtl
+    #define sqrtq sqrtl
+#include <stdlib.h>
+#include <complex.h>
+#include <tgmath.h>
+#include <float.h>    
+      using __float128 =  long double;
+      using __complex128 =  long double _Complex  ;
+	__float128 testfloat()
+    {
+      return sqrtq(2.0L);
+    }
+    __complex128 testcfloat()
+    {
+      return csqrtq(2.0L + (1.0iL)*1.0L);
+    }
+
+    #endif    
+	#if defined(__x86_64__) || defined(__i386__)
 	__float128 testfloat()
     {
       return sqrtq(2.0q);
@@ -10,13 +32,19 @@ m4_define([_AX_CXX_COMPILE_LIBQUADMATH_testbody], [[
     {
       return csqrtq(2.0q + (__extension__ 1.0iQ)*1.0q);
     }
+    #endif    
 ]])
 
 m4_define([_AX_CXX_COMPILE_STDCXX_11_FLOAT128_RANDOM_testbody], [[
 
     extern "C" {
+	#if defined(__x86_64__) || defined(__i386__)
     #include <quadmath.h>
+    #endif
     }
+    #ifdef __aarch64__
+      using __float128 =  long double;
+    #endif
     #include <random>
 	__float128 testfunc(int n)
     {
