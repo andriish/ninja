@@ -24,4 +24,7 @@ jobs:
 
       - name: Compile and run
         run: |
-           uname -a
+           ./configure --prefix=$(pwd)/X
+           make
+           make install
+           make examples
