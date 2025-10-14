@@ -1,4 +1,4 @@
-name: Fortran CI on Fedora (matrix: x86_64 + aarch64)
+name: Fortran CI on Fedora 
 
 on: [push, pull_request]
 
