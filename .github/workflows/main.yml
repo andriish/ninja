@@ -12,7 +12,7 @@ jobs:
             runner: ubuntu-22.04
           - platform: linux/arm64
             runner: ubuntu-22.04-arm
-    runs-on: ${{ matrix.runner || 'ubuntu-22.04' }
+    runs-on: ${{ matrix.runner || 'ubuntu-22.04' }}
     container:
       image: fedora:latest
     steps:
