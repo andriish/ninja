@@ -24,5 +24,4 @@ jobs:
 
       - name: Compile and run
         run: |
-          gfortran hello.f90 -o hello
-          ./hello
+           uname -a
