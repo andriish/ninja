@@ -8,11 +8,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: x86_64
-            runner: ubuntu-latest
-          - arch: aarch64
-            runner: [linux, arm64]
-    runs-on: ${{ matrix.runner }}
+          - platform: linux/amd64
+            runner: ubuntu-22.04
+          - platform: linux/arm64
+            runner: ubuntu-22.04-arm
+    runs-on: ${{ matrix.runner || 'ubuntu-22.04' }
     container:
       image: fedora:latest
     steps:
