@@ -27,7 +27,7 @@ jobs:
       - name: Compile and run
         run: |
            autoreconf -i
-           ./configure --prefix=$(pwd)/X
+           ./configure --prefix=$(pwd)/X --with-quadruple
            make
            make install
            make examples
