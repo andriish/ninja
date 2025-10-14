@@ -36,9 +36,39 @@ if(F90MODULE)
   list(APPEND LIBNINJA_SOURCES mninja.F90)
 endif()
 
-add_library(ninja STATIC ${LIBNINJA_SOURCES})
-target_include_directories(ninja PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+if(QUADNINJA)
+  find_program(SED NAMES gsed sed)
+  make_directory(${CMAKE_BINARY_DIR}/src/quadsources/)
+  set(GENQUADSCRIPT ${CMAKE_SOURCE_DIR}/src/quadsources/genquadsources.sed)
+  foreach(src IN LISTS QUAD_SOURCES)
+    get_filename_component(base ${src} NAME)
+    list(APPEND LIBNINJA_SOURCES  ${CMAKE_BINARY_DIR}/src/${src})
+    add_custom_command(
+      OUTPUT ${src}
+      COMMAND ${SED} -f ${GENQUADSCRIPT} < ${CMAKE_SOURCE_DIR}/src/${base} > ${CMAKE_BINARY_DIR}/src/${src}
+      DEPENDS ${CMAKE_SOURCE_DIR}/src/${base} ${GENQUADSCRIPT}
+      COMMENT "Generating ${src} from ${base}"
+    )
+  endforeach()
+endif()
 
+
+add_library(ninja SHARED ${LIBNINJA_SOURCES})
+
+set_target_properties(ninja PROPERTIES OUTPUT_NAME ninja SOVERSION 0
+  ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/outputs/${CMAKE_INSTALL_LIBDIR}/$<0:>
+  LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/outputs/${CMAKE_INSTALL_LIBDIR}/$<0:>
+  RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/outputs/${CMAKE_INSTALL_LIBDIR}/$<0:>
+  EXPORT_NAME ninja::ninja)
+set_target_properties(ninja PROPERTIES
+  VERSION 0.0.0
+)
+
+target_include_directories(ninja PUBLIC 
+
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 # Optional Fortran include flags
 if(AVHOLO)
   if(NINJAGOSAMCONTRIB)
@@ -51,23 +81,37 @@ endif()
 # Optional library links
 target_link_libraries(ninja PRIVATE ${AVHFLAGS} ${QUADRUPLEFLAGS})
 
+
+# Set the module output directory (optional but recommended)
+set_target_properties(ninja PROPERTIES
+  Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/modules
+)
+
+if(F90MODULE)
+
+# Install the module file
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/modules/mninja.mod
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+endif()
+
+if(GOSAM)
+  install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/modules/ninjago_module.mod
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif()
+
 # Executable
 add_executable(ninja-config ninja_config.cc)
 target_link_libraries(ninja-config PRIVATE ninja)
 
+
+#if(QUADNINJA)
+#  add_subdirectory(quadninja)
+#endif()
 # Generated sources (QUADNINJA)
-if(QUADNINJA)
-  set(GENQUADSCRIPT ${CMAKE_SOURCE_DIR}/src/quadsources/genquadsources.sed)
-  foreach(src IN LISTS QUAD_SOURCES)
-    get_filename_component(base ${src} NAME)
-    add_custom_command(
-      OUTPUT ${src}
-      COMMAND ${SED} -f ${GENQUADSCRIPT} < ${CMAKE_SOURCE_DIR}/src/${base} > ${src}
-      DEPENDS ${CMAKE_SOURCE_DIR}/src/${base} ${GENQUADSCRIPT}
-      COMMENT "Generating ${src} from ${base}"
-    )
-  endforeach()
-endif()
+
 
 # Headers (not installed)
 set(NINJA_HEADERS
@@ -96,3 +140,42 @@ if(QUADNINJA)
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
     "quadsources/*.cc;quadsources/*.hh;quadsources/*.cxx;quadsources/*.F90")
 endif()
+
+install(FILES
+ninja/integral_library.hh  
+ninja/ninja_config.h  
+ninja/ninja_in.hh     
+ninja/num_defs.hh  
+ninja/s_mat.hh    
+ninja/static_arrays.hh  
+ninja/thread_safe_integral_library.hh  
+ninja/zero_float.hh
+ninja/momentum.hh          
+ninja/ninja.hh       
+ninja/ninjanumgen.hh  
+ninja/rambo.hh     
+ninja/spinors.hh  
+ninja/tensor_ninja.hh   
+ninja/types.hh
+DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ninja/
+)
+# Install the executable to the system's binary directory
+install(TARGETS ninja-config
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+
+# Install the library
+install(TARGETS ninja 
+  EXPORT ninjaTargets
+
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  #INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# Export targets for use in other projects
+install(EXPORT ninjaTargets
+  FILE ninjaTargets.cmake
+ # NAMESPACE ninja::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ninja
+)

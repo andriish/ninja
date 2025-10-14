@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(NinjaQuadruple LANGUAGES C CXX Fortran)
-
+include(GNUInstallDirs)
 # Options for conditional features
 option(QUADNINJA "Enable quadruple precision sources" OFF)
 option(AVHOLO "Enable AVHolo interface" OFF)
@@ -9,14 +9,13 @@ option(F90MODULE "Enable Fortran 90 module" OFF)
 option(NINJAGOSAMCONTRIB "Use GoSam contrib mode" OFF)
 
 add_definitions("-DVERSION=\"1.2.3\"")
+add_definitions("-DNINJA_CONFIG_H_INTERNAL")
 
 
 # Include subdirectories
 add_subdirectory(src)
 #add_subdirectory(examples)
-if(QUADNINJA)
-  add_subdirectory(quadninja)
-endif()
+
 
 
 # Define extra distribution files (for packaging or install scripts)
