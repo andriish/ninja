@@ -144,10 +144,17 @@ AS_IF([test "x$with_quadruple" != xno] || [test "x$enable_quadninja" != xno],
 AS_IF([test "x$with_quadruple" != xno] || [test "x$enable_quadninja" != xno],
     [AX_CXX_COMPILE_STDCXX_11_FLOAT128_RANDOM]
 )
-
+AC_CANONICAL_HOST
 # Quadruple precision
 AS_IF([test "x$with_quadruple" = xyes],
-       AC_SUBST([QUADRUPLEFLAGS], ["-lquadmath"])
+case "$host_cpu" in
+  x86_64 | i386)
+    AC_SUBST([QUADRUPLEFLAGS], ["-lquadmath"])
+    ;;
+  *)
+    AC_SUBST([QUADRUPLEFLAGS], [""])
+    ;;
+esac
        AC_DEFINE([NINJA_QUADRUPLE], [1],
        [Define to 1 if Ninja is compiled in quadruple precision.])
        [quadruple=true],
@@ -161,7 +168,15 @@ AM_CONDITIONAL(QUADRUPLE, test "x$quadruple" = xtrue)
 
 # Quadninja
 AS_IF([test "x$enable_quadninja" = xyes],
-       AC_SUBST([QUADRUPLEFLAGS], ["-lquadmath"])
+case "$host_cpu" in
+  x86_64 | i386)
+    AC_SUBST([QUADRUPLEFLAGS], ["-lquadmath"])
+    ;;
+  *)
+    AC_SUBST([QUADRUPLEFLAGS], [""])
+    ;;
+esac
+
        AC_DEFINE([QUADNINJA], [1],
        [Define to 1 if QuadNinja is built.])
        [quadninja=true],
