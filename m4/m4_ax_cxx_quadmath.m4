@@ -19,7 +19,7 @@ m4_define([_AX_CXX_COMPILE_LIBQUADMATH_testbody], [[
     }
     __complex128 testcfloat()
     {
-      return csqrtq(2.0L + (iL)*1.0L);
+      return csqrtq(2.0L + (1.0iL)*1.0L);
     }
 
     #endif    
