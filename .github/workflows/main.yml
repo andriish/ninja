@@ -1,0 +1,17 @@
+name: Fortran CI on Fedora aarch64
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Compile Fortran on Fedora aarch64
+    container:
+      image: fedora:latest
+    runs-on: [linux, arm64]  # Native ARM runner
+    steps:
+      - uses: actions/checkout@v3
+      - run: dnf install -y gcc-gfortran
+      - run: |
+          gfortran hello.f90 -o hello
+          ./hello
