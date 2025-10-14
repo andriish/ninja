@@ -5,7 +5,28 @@ set(LIBNINJA_SOURCES
   avholo_interface.cc rambo.cc ninja_wraps.cc
 )
 
+configure_file(ninja/ninja_config.h.in ninja/ninja_config.h)
+
 if(QUADNINJA)
+configure_file(ninja/ninja_config.h.in quadninja/ninja_config.h)
+
+set(QUADNINJAHEADERS  quadninja/ninja.hh quadninja/ninja_in.hh quadninja/tensor_ninja.hh 
+	quadninja/zero_float.hh quadninja/types.hh  quadninja/s_mat.hh 
+	quadninja/momentum.hh  quadninja/num_defs.hh quadninja/spinors.hh  
+	quadninja/static_arrays.hh 
+	quadninja/integral_library.hh quadninja/thread_safe_integral_library.hh 
+	quadninja/rambo.hh quadninja/ninjanumgen.hh
+	quadninja/quadruple.hh
+	)
+if (AVHOLO)
+LIST(APPEND QUADNINJAHEADERS   quadninja/avholo.hh)
+endif()
+if (LOOPTOOLS)
+LIST(APPEND QUADNINJAHEADERS  quadninja/looptools.hh)
+endif()
+#QUADNINJAHEADERS +=  quadruple.hh
+
+
   set(QUAD_SOURCES
     quadsources/basis.cc quadsources/cuts_utils.cc quadsources/ninja.cc
     quadsources/Xcuts.cc quadsources/cuts.cc quadsources/Xninja.cc
@@ -13,15 +34,43 @@ if(QUADNINJA)
     quadsources/coefficient_level_subs.cc quadsources/integral_library.cc
     quadsources/avholo_interface.cc quadsources/rambo.cc
     quadsources/ninja_wraps.cc
+
+    quadsources/basis.hh 
+    quadsources/cuts_utils.hh 
+    quadsources/cuts_utils-inl.hh 
+    quadsources/tmp_utils.hh 
+    quadsources/cuts.hh 
+    quadsources/cuts_vector.hh 
+    quadsources/integermath.hh 
+    quadsources/coefficient_level_subs.hh 
+    quadsources/integral_library_wrapper.hh 
+    quadsources/s_mat_wrapper.hh 
+    quadsources/polys_implem.cxx
+    quadsources/ninja_implem.cxx
+    quadsources/ninja_scoped_array.hh
+    #quadsources/ninja.hh
+    #quadsources/Xcuts.hh quadsources/cuts.hh quadsources/Xninja.hh
+    #quadsources/spinors.hh 
+    #quadsources/tensor_ninja.hh
+    #quadsources/coefficient_level_subs.hh quadsources/integral_library.hh
+    #quadsources/avholo_interface.hh quadsources/rambo.hh
+    #quadsources/ninja_wraps.hh
+
+
   )
+if(AVHOLO)
+
+      list(APPEND QUAD_SOURCES quadsources/avholo_wrapper.F90)
+endif()
+
+  
   list(APPEND LIBNINJA_SOURCES ${QUAD_SOURCES})
 endif()
 
 if(AVHOLO)
   list(APPEND LIBNINJA_SOURCES avholo_wrapper.F90 ninjavholo_wraps.cc ninjavholo.F90)
-  if(QUADNINJA)
-    list(APPEND LIBNINJA_SOURCES quadsources/avholo_wrapper.F90)
-  endif()
+
+
 endif()
 
 if(LOOPTOOLS)
@@ -50,6 +99,19 @@ if(QUADNINJA)
       COMMENT "Generating ${src} from ${base}"
     )
   endforeach()
+
+  make_directory(${CMAKE_BINARY_DIR}/src/quadninja/)
+  foreach(src IN LISTS QUADNINJAHEADERS)
+    get_filename_component(base ${src} NAME)
+    list(APPEND LIBNINJA_SOURCES  ${CMAKE_BINARY_DIR}/src/${src})
+    add_custom_command(
+      OUTPUT ${src}
+      COMMAND ${SED} -f ${GENQUADSCRIPT} < ${CMAKE_SOURCE_DIR}/src/ninja/${base} > ${CMAKE_BINARY_DIR}/src/${src}
+      DEPENDS ${CMAKE_SOURCE_DIR}/src/ninja/${base} ${GENQUADSCRIPT}
+      COMMENT "Generating ${src} from ${base}"
+    )
+  endforeach()
+
 endif()
 
 
@@ -69,6 +131,12 @@ target_include_directories(ninja PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+if(QUADNINJA)
+target_include_directories(ninja PRIVATE
+
+$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+)
+endif()
 # Optional Fortran include flags
 if(AVHOLO)
   if(NINJAGOSAMCONTRIB)
@@ -159,6 +227,29 @@ ninja/tensor_ninja.hh
 ninja/types.hh
 DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ninja/
 )
+
+
+if(QUADNINJA)
+install(FILES
+quadninja/integral_library.hh  
+quadninja/ninja_config.h  
+quadninja/ninja_in.hh     
+ninja/num_defs.hh  
+quadninja/s_mat.hh    
+quadninja/static_arrays.hh  
+quadninja/thread_safe_integral_library.hh  
+quadninja/zero_float.hh
+quadninja/momentum.hh          
+quadninja/ninja.hh       
+quadninja/ninjanumgen.hh  
+quadninja/rambo.hh     
+quadninja/spinors.hh  
+quadninja/tensor_ninja.hh   
+quadninja/types.hh
+DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/quadninja/
+)
+
+endif()
 # Install the executable to the system's binary directory
 install(TARGETS ninja-config
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

@@ -10,7 +10,10 @@ option(NINJAGOSAMCONTRIB "Use GoSam contrib mode" OFF)
 
 add_definitions("-DVERSION=\"1.2.3\"")
 add_definitions("-DNINJA_CONFIG_H_INTERNAL")
-
+if (QUADNINJA)
+add_definitions("-DQUADNINJA")
+add_definitions("-DNINJA_QUADRUPLE")
+endif()
 
 # Include subdirectories
 add_subdirectory(src)
