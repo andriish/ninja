@@ -1,17 +1,32 @@
-name: Fortran CI on Fedora aarch64
+name: Fortran CI on Fedora (matrix: x86_64 + aarch64)
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    name: Compile Fortran on Fedora aarch64
+    name: Compile Fortran on ${{ matrix.arch }}
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+          - arch: aarch64
+            runner: [linux, arm64]
+    runs-on: ${{ matrix.runner }}
     container:
       image: fedora:latest
-    runs-on: [linux, arm64]  # Native ARM runner
     steps:
-      - uses: actions/checkout@v3
-      - run: dnf install -y gcc-gfortran
-      - run: |
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install gfortran
+        run: dnf install -y gcc-gfortran
+
+      - name: Compile and run
+        run: |
           gfortran hello.f90 -o hello
           ./hello
