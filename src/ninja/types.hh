@@ -63,8 +63,10 @@ namespace ninja {
   typedef ZeroFloat Massless;
 
 
+#if defined(__x86_64__) || defined(__i386__)
   // Imaginary unit
   const Complex I(Real(0.),Real(1.));
+#endif
 
 
 #if !defined(NINJA_QUADRUPLE) && !defined(QUADNINJA_TYPES_HH_INSIDE)
