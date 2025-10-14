@@ -1,0 +1,33 @@
+name: Fortran CI on Fedora 
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Compile Fortran on ${{ matrix.arch }}
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-22.04
+          - platform: linux/arm64
+            runner: ubuntu-22.04-arm
+    runs-on: ${{ matrix.runner || 'ubuntu-22.04' }}
+    container:
+      image: fedora:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install gfortran
+        run: |
+           dnf install -y gcc-gfortran gcc-c++ autogen autoconf automake	libtool cmake bear
+           dnf install -y libquadmath-devel || echo "OK" 
+            
+      - name: Compile and run
+        run: |
+           autoreconf -i
+           ./configure --prefix=$(pwd)/X --with-quadruple
+           make
+           make install
+           make examples
