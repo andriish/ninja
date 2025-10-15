@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: Compile Fortran on ${{ matrix.arch }}
+    name: Compile Fortran on ${{ matrix.platform }} with ${{ matrix.build_system }}
     strategy:
       matrix:
         include:
@@ -32,7 +32,7 @@ jobs:
            dnf install -y gcc-gfortran gcc-c++ autogen autoconf automake	libtool cmake bear
            dnf install -y libquadmath-devel || echo "OK" 
             
-      - name: Compile and run
+      - name: Compile and run on 
         run: |
            if [ "${{ matrix.build_system }}" = "autotools" ]; then
            autoreconf -i 
@@ -41,6 +41,6 @@ jobs:
            make install 
            elif [ "${{ matrix.build_system }}" = "cmake" ]; then
            cmake -S . -B BUILD -DAVHOLO=OFF -DF90MODULE=OFF  -DGOSAM=OFF -DQUADNINJA=OFF -DCMAKE_INSTALL_PREFIX=$(pwd)/CINSTALL -DCMAKE_INSTALL_LIBDIR=lib
-           bear --output cmake.json -- cmake --build BUILD -j 10
+           bear --output cmake.json -- cmake --build BUILD -j
            cmake --install BUILD
            fi
