@@ -15,6 +15,7 @@ def get_compilation_DB(fname):
   fil = fil.replace("//","/")
   fil = fil.replace("/builds/atlas-physics/pmg/mcexperts/powheg-experts/powheg-compilation/","")
   fil = fil.replace("/home/andriish/Projects/reference/VVJ/ORIG/","")
+  fil = fil.replace("/home/andriish/Projects/makeninja/","")
   current_directory = os.getcwd()
   fil = fil.replace(current_directory+"/","")
   fil = fil.replace("/builds/andriish/ttJ_MiNNLO/","")

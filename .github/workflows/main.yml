@@ -10,8 +10,16 @@ jobs:
         include:
           - platform: linux/amd64
             runner: ubuntu-22.04
+            build_system: autotools
+          - platform: linux/amd64
+            runner: ubuntu-22.04
+            build_system: cmake
           - platform: linux/arm64
             runner: ubuntu-22.04-arm
+            build_system: autotools
+          - platform: linux/arm64
+            runner: ubuntu-22.04-arm
+            build_system: cmake
     runs-on: ${{ matrix.runner || 'ubuntu-22.04' }}
     container:
       image: fedora:latest
@@ -26,8 +34,13 @@ jobs:
             
       - name: Compile and run
         run: |
-           autoreconf -i
-           ./configure --prefix=$(pwd)/X --with-quadruple
-           make
-           make install
-           make examples
+           if [ "${{ matrix.build_system }}" = "autotools" ]; then
+           autoreconf -i 
+           ./configure  --prefix=$(pwd)/MINSTALL --with-avholo=no --enable-quadninja=no  --with-quadruple=no --disable-f90module --disable-gosam --disable-avholo_cache --with-looptools=no
+           bear --output make.json -- make -j
+           make install 
+           elif [ "${{ matrix.build_system }}" = "cmake" ]; then
+           cmake -S . -B BUILD -DAVHOLO=OFF -DF90MODULE=OFF  -DGOSAM=OFF -DQUADNINJA=OFF -DCMAKE_INSTALL_PREFIX=$(pwd)/CINSTALL -DCMAKE_INSTALL_LIBDIR=lib
+           bear --output cmake.json -- cmake --build BUILD -j 10
+           cmake --install BUILD
+           fi

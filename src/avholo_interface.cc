@@ -1,8 +1,8 @@
 #ifdef HAVE_CONFIG_H
-# include <config.h>
+# include "config.h"
 #endif
 
-#include <ninja/avholo.hh>
+#include "ninja/avholo.hh"
 
 namespace ninja {
 
@@ -13,7 +13,8 @@ namespace ninja {
 }
 
 
-#ifdef NINJA_USE_ONELOOP
+#if defined(NINJA_USE_ONELOOP)
+#error "Not here!"
 # include <avholo_decls.hh>
 
 #ifdef NINJA_USE_ONELOOP_WITH_CACHE

@@ -69,8 +69,6 @@ endif()
 
 if(AVHOLO)
   list(APPEND LIBNINJA_SOURCES avholo_wrapper.F90 ninjavholo_wraps.cc ninjavholo.F90)
-
-
 endif()
 
 if(LOOPTOOLS)
@@ -118,14 +116,32 @@ endif()
 add_library(ninja SHARED ${LIBNINJA_SOURCES})
 
 set_target_properties(ninja PROPERTIES OUTPUT_NAME ninja SOVERSION 0
-  ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/outputs/${CMAKE_INSTALL_LIBDIR}/$<0:>
-  LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/outputs/${CMAKE_INSTALL_LIBDIR}/$<0:>
-  RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/outputs/${CMAKE_INSTALL_LIBDIR}/$<0:>
+  #ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/outputs/${CMAKE_INSTALL_LIBDIR}/$<0:>
+  #LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/outputs/${CMAKE_INSTALL_LIBDIR}/$<0:>
+  #RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/outputs/${CMAKE_INSTALL_LIBDIR}/$<0:>
   EXPORT_NAME ninja::ninja)
 set_target_properties(ninja PROPERTIES
   VERSION 0.0.0
 )
 
+target_include_directories(ninja PRIVATE
+
+$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
+)
+target_include_directories(ninja PRIVATE
+
+$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/src>
+)
+
+target_include_directories(ninja PRIVATE
+
+$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/src/ninja>
+)
+
+target_include_directories(ninja PRIVATE
+
+$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+)
 target_include_directories(ninja PUBLIC 
 
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -173,6 +189,7 @@ endif()
 # Executable
 add_executable(ninja-config ninja_config.cc)
 target_link_libraries(ninja-config PRIVATE ninja)
+target_include_directories(ninja-config PRIVATE ${CMAKE_BINARY_DIR})
 
 
 #if(QUADNINJA)
@@ -186,7 +203,8 @@ set(NINJA_HEADERS
   ninja_implem.cxx polys_implem.cxx basis.hh cuts.hh cuts_utils.hh Xcuts.hh
   cuts_utils-inl.hh coefficient_level_subs.hh integermath.hh tmp_utils.hh
   ninja_scoped_array.hh cuts_vector.hh integral_library_wrapper.hh
-  s_mat_wrapper.hh avholo_decls.hh ninja_hash_table.hh integral_cache.hh
+  s_mat_wrapper.hh avholo_decls.hh ninja_hash_table.hh 
+  integral_cache.hh
   gosam_interface.hh
 )
 
@@ -211,7 +229,7 @@ endif()
 
 install(FILES
 ninja/integral_library.hh  
-ninja/ninja_config.h  
+#ninja/ninja_config.h  
 ninja/ninja_in.hh     
 ninja/num_defs.hh  
 ninja/s_mat.hh    
