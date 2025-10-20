@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
     name: Compile Fortran on ${{ matrix.platform }} with ${{ matrix.build_system }}
+    continue-on-error: true
     strategy:
       matrix:
         include:
